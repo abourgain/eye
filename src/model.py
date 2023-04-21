@@ -1,3 +1,7 @@
+"""
+Implement UNet Architecture
+"""
+
 import torch
 from torch import nn
 import torchvision.transforms.functional as TF
@@ -61,6 +65,9 @@ class UNet(nn.Module):
         self.final_conv = nn.Conv2d(features[0], out_channels, kernel_size=1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass of UNet
+        """
         skip_connections = []
 
         for down in self.downs:
