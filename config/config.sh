@@ -2,6 +2,7 @@
 # a bash script to setup the environment for the project
 # install python and virtualenv
 brew install python@3.10
+python3.10 -m pip install --upgrade pip
 python3.10 -m pip install virtualenv
 
 # create the virtual environment in the project root
