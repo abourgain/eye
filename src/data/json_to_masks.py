@@ -1,3 +1,7 @@
+"""
+Converts json to mask images 
+"""
+
 import json
 import numpy as np
 from PIL import Image

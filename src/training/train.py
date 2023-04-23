@@ -1,15 +1,20 @@
+"""
+Training script for the UNet model.
+"""
+
 from tqdm import tqdm
 
 import torch
-import torch.nn as nn
-import torch.optim as optim
+from torch import nn
+from torch import optim
+from torch.utils.data import Dataset
+
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
-from torch.utils.data import Dataset
-from src.dataset import CityscapesDataset
 
+from src.data.dataset import CityscapesDataset
 from src.model import UNet
-from src.utils import load_checkpoint, save_checkpoint, get_loaders, check_accuracy, save_predictions_as_imgs
+from src.training.utils import save_checkpoint, get_loaders, check_accuracy, save_predictions_as_imgs
 
 # Hyperparameters etc.
 LEARNING_RATE = 1e-4
@@ -28,9 +33,12 @@ VAL_MASK_DIR = "data/val_masks/"
 
 
 def train_fn(loader, model, optimizer, loss_fn, scaler):
+    """
+    Training loop.
+    """
     loop = tqdm(loader)
 
-    for batch_idx, (data, targets) in enumerate(loop):
+    for _, (data, targets) in enumerate(loop):
         data = data.to(device=DEVICE)
         targets = targets.float().to(DEVICE)
 
@@ -67,6 +75,9 @@ def main(
     out_channels: int = 1,
 
 ) -> None:
+    """
+    Main training function.
+    """
     train_transform = A.Compose(
         [
             A.Resize(height=IMAGE_HEIGHT, width=IMAGE_WIDTH),
@@ -113,7 +124,7 @@ def main(
     )
 
     scaler = torch.cuda.amp.GradScaler()
-    for epoch in range(NUM_EPOCHS):
+    for _ in range(NUM_EPOCHS):
         train_fn(train_loader, model, optimizer, loss_fn, scaler)
 
         # save model
@@ -134,4 +145,4 @@ def main(
 
 
 if __name__ == "__main__":
-    main(dataset = CityscapesDataset, in_channels=3, out_channels=19,)
+    main(dataset=CityscapesDataset, in_channels=3, out_channels=19,)

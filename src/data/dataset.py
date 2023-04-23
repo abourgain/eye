@@ -1,3 +1,7 @@
+"""
+This file contains the dataset class.
+"""
+
 import os
 from PIL import Image
 from torch.utils.data import Dataset
@@ -5,6 +9,9 @@ import numpy as np
 
 
 class CarvanaDataset(Dataset):
+    """
+    Carvana dataset.
+    """
 
     def __init__(self, image_dir: str, mask_dir: str, transform=None) -> None:
         self. image_dir = image_dir
@@ -30,7 +37,11 @@ class CarvanaDataset(Dataset):
 
         return image, mask
 
+
 class CityscapesDataset(Dataset):
+    """
+    Cityscapes dataset.
+    """
 
     def __init__(self, image_dir: str, mask_dir: str, transform=None) -> None:
         self. image_dir = image_dir

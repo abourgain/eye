@@ -1,8 +1,10 @@
+"""
+Utility functions for training and evaluation.
+"""
+
 import torch
 import torchvision
 from torch.utils.data import DataLoader, Dataset
-
-from src.dataset import CarvanaDataset
 
 
 def save_checkpoint(state, filename="my_checkpoint.pth.tar"):
@@ -64,6 +66,7 @@ def get_loaders(
 
     return train_loader, val_loader
 
+
 def check_accuracy(loader, model, device="cuda"):
     """
     Check accuracy of a trained model for a binary classification task.
@@ -90,6 +93,7 @@ def check_accuracy(loader, model, device="cuda"):
     )
     print(f"Dice score: {dice_score/len(loader)}")
     model.train()
+
 
 def save_predictions_as_imgs(
     loader, model, folder="saved_images/", device="cuda"
