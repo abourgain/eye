@@ -3,6 +3,7 @@ Converts json to mask images
 """
 
 import json
+
 import numpy as np
 from PIL import Image
 
@@ -22,7 +23,7 @@ class InputStream:
         """
         read bits from bytes array
         """
-        out = self.data[self.i:self.i + size]
+        out = self.data[self.i : self.i + size]
         self.i += size
         return int(out, 2)
 
@@ -35,10 +36,10 @@ class InputStream:
         return (data[base] & (1 << shift)) >> shift
 
     def _bytes2bit(self, data: list[int]) -> str:
-        """ 
+        """
         get bit string from bytes data
         """
-        return ''.join([str(self._access_bit(data, i)) for i in range(len(data) * 8)])
+        return "".join([str(self._access_bit(data, i)) for i in range(len(data) * 8)])
 
 
 def rle_decode(rle: list[int], shape: tuple[int, int]) -> np.array:
@@ -101,7 +102,7 @@ def save_combined_mask_to_png(combined_mask: np.array, output_filename: int) -> 
         output_filename: str
 
     Returns: None"""
-    img = Image.fromarray(combined_mask, mode='L')
+    img = Image.fromarray(combined_mask, mode="L")
     img.save(output_filename)
 
 
@@ -113,19 +114,19 @@ def main(json_path: str = "mask.json", masks_dir: str = "./masks") -> None:
         masks_dir: path to masks directory
 
     Returns: None"""
-    with open(json_path, 'r', encoding='utf-8') as f:
+    with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     for i, img in enumerate(data):
-        img_path = img['image']
+        img_path = img["image"]
         mask_path = f"{masks_dir}/{img_path.split('-')[-1]}"
         print(f"Processing {i + 1}/{len(data)}: {mask_path}")
 
         masks = {}
-        for mask in img['tag']:
-            shape = (mask['original_width'], mask['original_height'])
-            label = mask['brushlabels'][0]
-            rle = mask['rle']
+        for mask in img["tag"]:
+            shape = (mask["original_width"], mask["original_height"])
+            label = mask["brushlabels"][0]
+            rle = mask["rle"]
             masks[label] = rle_decode(rle, shape)
 
         combined_mask = combine_masks(masks)

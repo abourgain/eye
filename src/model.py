@@ -3,8 +3,8 @@ Implement UNet Architecture
 """
 
 import torch
-from torch import nn
 import torchvision.transforms.functional as TF
+from torch import nn
 
 
 class DoubleConv(nn.Module):
@@ -15,14 +15,12 @@ class DoubleConv(nn.Module):
     def __init__(self, in_channels: int, out_channels: int) -> None:
         super().__init__()
         self.conv = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=3,
-                      padding=1, stride=1, bias=False),
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1, stride=1, bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, kernel_size=3,
-                      padding=1, stride=1, bias=False),
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1, stride=1, bias=False),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -34,12 +32,7 @@ class UNet(nn.Module):
     UNet Architecture
     """
 
-    def __init__(
-            self,
-            in_channels: int = 3,
-            out_channels: int = 1,
-            features: list = []
-    ) -> None:
+    def __init__(self, in_channels: int = 3, out_channels: int = 1, features: list = []) -> None:
         super().__init__()
         self.ups = nn.ModuleList()
         self.downs = nn.ModuleList()
@@ -54,11 +47,7 @@ class UNet(nn.Module):
 
         # Up part of UNet
         for feature in reversed(features):
-            self.ups.append(
-                nn.ConvTranspose2d(
-                    feature * 2, feature, kernel_size=2, stride=2
-                )
-            )
+            self.ups.append(nn.ConvTranspose2d(feature * 2, feature, kernel_size=2, stride=2))
             self.ups.append(DoubleConv(feature * 2, feature))
 
         self.bottleneck = DoubleConv(features[-1], features[-1] * 2)

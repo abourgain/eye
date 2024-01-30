@@ -67,7 +67,7 @@ def get_loaders(
     return train_loader, val_loader
 
 
-def check_accuracy(loader, model, device="cuda"):
+def check_accuracy(loader, model, num_classes: int, device: str = "cpu"):
     """
     Check accuracy of a trained model for a binary classification task.
     """
@@ -80,24 +80,23 @@ def check_accuracy(loader, model, device="cuda"):
         for x, y in loader:
             x = x.to(device=device)
             y = y.unsqueeze(1).to(device=device)
-            preds = torch.sigmoid(model(x))
-            preds = (preds > 0.5).float()
+
+            if num_classes == 1:  # binary classification
+                preds = torch.sigmoid(model(x))
+                preds = (preds > 0.5).float()
+                dice_score += (2 * (preds * y).sum()) / ((preds + y).sum() + 1e-8)
+                print(f"Dice score: {dice_score/len(loader)}")
+            else:  # multi-class classification
+                preds = torch.softmax(model(x), dim=1)
+                preds = torch.argmax(preds, dim=1).float()
             num_correct += (preds == y).sum()
             num_pixels += torch.numel(preds)
-            dice_score += (2 * (preds * y).sum()) / (
-                (preds + y).sum() + 1e-8
-            )
 
-    print(
-        f"Got {num_correct}/{num_pixels} with acc {num_correct/num_pixels*100:.2f}"
-    )
-    print(f"Dice score: {dice_score/len(loader)}")
+    print(f"Got {num_correct}/{num_pixels} with acc {num_correct/num_pixels*100:.2f}")
     model.train()
 
 
-def save_predictions_as_imgs(
-    loader, model, folder="saved_images/", device="cuda"
-):
+def save_predictions_as_imgs(loader, model, num_classes: int, folder="./saved_images", device="cpu"):
     """
     Function to save predictions as images.
     """
@@ -105,12 +104,23 @@ def save_predictions_as_imgs(
     for idx, (x, y) in enumerate(loader):
         x = x.to(device=device)
         with torch.no_grad():
-            preds = torch.sigmoid(model(x))
-            preds = (preds > 0.5).float()
+            if num_classes == 1:  # binary classification
+                preds = torch.sigmoid(model(x))
+                preds = (preds > 0.5).float()
+            else:  # multiclass classification
+                preds = torch.softmax(model(x), dim=1)
+                preds = torch.argmax(preds, dim=1).float()
 
-        torchvision.utils.save_image(
-            preds, f"{folder}/pred_{idx}.png"
-        )
-        torchvision.utils.save_image(y.unsqueeze(1), f"{folder}{idx}.png")
+                # Unsqueeze the tensors to add the channel dimension
+                # This is required by torchvision.utils.save_image
+                preds = preds.unsqueeze(1)
+                y = y.unsqueeze(1)
+
+                # Get to distinguisable color values
+                preds = preds * 127
+                y = y * 127
+
+        torchvision.utils.save_image(preds, f"{folder}/pred_{idx}.png")
+        torchvision.utils.save_image(y, f"{folder}{idx}.png")
 
     model.train()

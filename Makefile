@@ -11,3 +11,8 @@ pylint-src:
 
 lint:
 	make pylint-src
+
+### ---------------   Format  --------------- ###
+format:
+	isort --profile black -l 200 src/
+	black -l 200 src/
