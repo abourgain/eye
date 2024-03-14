@@ -12,7 +12,7 @@ class AlexNet(nn.Module):
     """
 
     def __init__(self, in_channels: int = 3, num_classes: int = 10):
-        super(AlexNet, self).__init__()
+        super().__init__()
         self.layer1 = nn.Sequential(
             nn.Conv2d(in_channels, 96, kernel_size=11, stride=4, padding=0),
             nn.BatchNorm2d(96),
@@ -42,9 +42,9 @@ class AlexNet(nn.Module):
             nn.MaxPool2d(kernel_size=3, stride=2),
         )
         self.flatten = nn.Flatten()
-        self.fc = nn.Sequential(nn.Dropout(0.5), nn.Linear(6400, 4096), nn.ReLU())
-        self.fc1 = nn.Sequential(nn.Dropout(0.5), nn.Linear(4096, 4096), nn.ReLU())
-        self.fc2 = nn.Sequential(nn.Linear(4096, num_classes))
+        self.fc_1 = nn.Sequential(nn.Dropout(0.5), nn.Linear(6400, 4096), nn.ReLU())
+        self.fc_2 = nn.Sequential(nn.Dropout(0.5), nn.Linear(4096, 4096), nn.ReLU())
+        self.fc_3 = nn.Sequential(nn.Linear(4096, num_classes))
 
     def forward(self, x):
         """
@@ -56,13 +56,13 @@ class AlexNet(nn.Module):
         out = self.layer4(out)
         out = self.layer5(out)
         out = self.flatten(out)
-        out = self.fc(out)
-        out = self.fc1(out)
-        out = self.fc2(out)
+        out = self.fc_1(out)
+        out = self.fc_2(out)
+        out = self.fc_3(out)
         return out
 
 
-def test_AlexNet():
+def test():
     """
     Test AlexNet model
     """
@@ -76,4 +76,4 @@ def test_AlexNet():
 
 
 if __name__ == "__main__":
-    test_AlexNet()
+    test()

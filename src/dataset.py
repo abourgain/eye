@@ -11,6 +11,10 @@ from torch.utils.data import Dataset
 
 
 class EyeDataset(Dataset):
+    """
+    Eye Dataset
+    """
+
     def __init__(self, images_dir, groundtruth_dir, transform=None):
         """
         Args:
