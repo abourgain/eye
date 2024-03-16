@@ -3,6 +3,7 @@ EyeDataset class to load images and ground truth data from a directory.
 """
 
 import os
+import numpy as np
 import pandas as pd
 from PIL import Image
 
@@ -39,6 +40,9 @@ class EyeDataset(Dataset):
         img_name = os.path.join(self.images_dir, self.image_filenames[idx])
         image = Image.open(img_name).convert("RGB")
 
+        # Convert PIL Image to NumPy array for Albumentations
+        image_np = np.array(image)
+
         # Assuming groundtruth filenames match the image filenames but with .csv extension
         groundtruth_name = os.path.join(
             self.groundtruth_dir, self.image_filenames[idx].replace(".png", ".csv")
@@ -51,6 +55,7 @@ class EyeDataset(Dataset):
         ).reshape(-1)
 
         if self.transform:
-            image = self.transform(image)
+            transformed = self.transform(image=image_np)
+            image = transformed["image"]
 
         return image, groundtruth_tensor
