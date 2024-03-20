@@ -2,6 +2,8 @@
 Utility functions for training and evaluation.
 """
 
+from typing import Union
+
 import torch
 import torchvision
 from torch.utils.data import DataLoader, Dataset
@@ -15,12 +17,15 @@ def save_checkpoint(state, filename="my_checkpoint.pth.tar"):
     torch.save(state, filename)
 
 
-def load_checkpoint(checkpoint, model):
+def load_checkpoint(checkpoint: Union[dict, str], model: torch.nn.Module):
     """
     Load model state dictionary from a checkpoint.
     """
     print("=> Loading checkpoint")
+    if isinstance(checkpoint, str):
+        checkpoint = torch.load(checkpoint)
     model.load_state_dict(checkpoint["state_dict"])
+    return model
 
 
 def get_loaders(

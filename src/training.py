@@ -2,13 +2,19 @@
 Training script for the AlexNet model.
 """
 
-import albumentations as A
 import torch
-from albumentations.pytorch import ToTensorV2
 from torch import nn, optim
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
+from src.constants import (
+    TRAIN_GROUNDTRUTH_DIR,
+    TRAIN_IMG_DIR,
+    TRAIN_TRANSFORM,
+    VAL_GROUNDTRUTH_DIR,
+    VAL_IMG_DIR,
+    VAL_TRANSFORM,
+)
 from src.dataset import EyeDataset
 from src.model import AlexNet
 from src.utils import (
@@ -29,14 +35,8 @@ else:
 BATCH_SIZE = 128
 NUM_EPOCHS = 30
 NUM_WORKERS = 2
-IMAGE_HEIGHT = 224  # 1280 originally
-IMAGE_WIDTH = 224  # 1918 originally
 PIN_MEMORY = True  # -> to explore
 LOAD_MODEL = False  # -> to explore
-TRAIN_IMG_DIR = "./data/eye/train/images/"
-TRAIN_GROUNDTRUTH_DIR = "./data/eye/train/groundtruth/"
-VAL_IMG_DIR = "./data/eye/test/images"
-VAL_GROUNDTRUTH_DIR = "./data/eye/test/groundtruth/"
 
 
 def train(loader, model, optimizer, loss_fn, scaler):
@@ -89,31 +89,8 @@ def main(
     """
     Main training function.
     """
-    train_transform = A.Compose(
-        [
-            A.Resize(height=IMAGE_HEIGHT, width=IMAGE_WIDTH),
-            A.Rotate(limit=35, p=1.0),
-            A.HorizontalFlip(p=0.5),
-            A.VerticalFlip(p=0.1),
-            A.Normalize(
-                mean=[0.0, 0.0, 0.0],
-                std=[1.0, 1.0, 1.0],
-                max_pixel_value=255.0,
-            ),
-            ToTensorV2(),
-        ]
-    )
-    val_transform = A.Compose(
-        [
-            A.Resize(height=IMAGE_HEIGHT, width=IMAGE_WIDTH),
-            A.Normalize(
-                mean=[0.0, 0.0, 0.0],
-                std=[1.0, 1.0, 1.0],
-                max_pixel_value=255.0,
-            ),
-            ToTensorV2(),
-        ]
-    )
+    train_transform = TRAIN_TRANSFORM
+    val_transform = VAL_TRANSFORM
 
     print(f"Using device: {DEVICE}")
 
@@ -148,7 +125,7 @@ def main(
             "state_dict": model.state_dict(),
             "optimizer": optimizer.state_dict(),
         }
-        save_checkpoint(checkpoint)
+        save_checkpoint(checkpoint, "model.pth.tar")
 
         # check accuracy
         check_accuracy(val_loader, model, device=DEVICE)

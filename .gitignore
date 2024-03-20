@@ -164,4 +164,4 @@ cython_debug/
 .DS_Store 
 
 # Saved model 
-my_checkpoint.pth.tar
+*.tar
